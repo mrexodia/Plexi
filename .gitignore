@@ -1,4 +1,6 @@
 *.userprefs
 *.suo
+*.db
 bin/
 obj/
+Plexi/test*.*
