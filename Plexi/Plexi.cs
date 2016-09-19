@@ -40,13 +40,13 @@ namespace Plexi
             //Perform processing on the color grid.
             var newImage = Process(image);
 
-            //Construct a Bitmap from the color grid.
-            var newBitmap = new Bitmap(image.GetLength(0), image.GetLength(1));
+            //Construct a new Bitmap from the color grid.
+            var newBitmap = new Bitmap(newImage.GetLength(0), newImage.GetLength(1));
             for (var x = 0; x < newBitmap.Width; x++)
                 for (var y = 0; y < newBitmap.Height; y++)
                     newBitmap.SetPixel(x, y, newImage[x, y]);
 
-            //Return the processed Bitmap.
+            //Return the new Bitmap.
             return newBitmap;
         }
 
@@ -69,30 +69,6 @@ namespace Plexi
         public override string ToString()
         {
             return this.GetType().Name;
-        }
-    }
-
-    public class Negative : Processor
-    {
-        public override Color Transform(Color c)
-        {
-            return Color.FromArgb(255 - c.R, 255 - c.G, 255 - c.B); // Negative color
-        }
-    }
-
-    public class Identity : Processor
-    {
-        public override Color Transform(Color c)
-        {
-            return c;
-        }
-    }
-
-    public class Greenblind : Processor
-    {
-        public override Color Transform(Color c)
-        {
-            return Color.FromArgb(c.R, c.G / 10, c.B);
         }
     }
 }
