@@ -1,85 +1,98 @@
 ﻿using System;
 using System.Drawing;
-using System.Linq;
+using System.Drawing.Imaging;
 
 namespace Plexi
 {
-	abstract class Filter
-	{
-		public virtual Bitmap Process(Bitmap b)
-		{
-			var image = new Color[b.Width, b.Height];
-			for (var x = 0; x < b.Width; x++)
-				for (var y = 0; y < b.Height; y++)
-					image[x, y] = b.GetPixel(x, y);
-			Process(image);
-			var result = new Bitmap(b.Width, b.Height);
-			for (var x = 0; x < b.Width; x++)
-				for (var y = 0; y < b.Height; y++)
-					result.SetPixel(x, y, image[x, y]);
-			return result;
-		}
+    public static class Plexi
+    {
+        public static Bitmap ReadBitmapFromConsole()
+        {
+            return new Bitmap(Console.OpenStandardInput());
+        }
 
-		public virtual void Process(Color[,] image)
-		{
-			for (var x = 0; x < image.GetLength(0); x++)
-				for (var y = 0; y < image.GetLength(1); y++)
-					image[x, y] = Transform(image[x, y]);
-		}
+        public static Bitmap ReadBitmapFromFile(string filename)
+        {
+            return new Bitmap(filename);
+        }
 
-		public virtual Color Transform(Color c)
-		{
-			return c;
-		}
+        public static void WriteBitmapToConsole(Bitmap bitmap)
+        {
+            bitmap.Save(Console.OpenStandardOutput(), ImageFormat.Png);
+        }
 
-		public override string ToString()
-		{
-			return this.GetType().Name;
-		}
-	}
+        public static void WriteBitmapToFile(Bitmap bitmap, string filename)
+        {
+            bitmap.Save(filename);
+        }
+    }
 
-	class Negative : Filter
-	{
-		public override Color Transform(Color c)
-		{
-			return Color.FromArgb(255 - c.R, 255 - c.G, 255 - c.B); // Negative color
-		}
-	}
+    public abstract class Processor
+    {
+        public virtual Bitmap Process(Bitmap bitmap)
+        {
+            //Construct a color grid from the bitmap.
+            var image = new Color[bitmap.Width, bitmap.Height];
+            for (var x = 0; x < bitmap.Width; x++)
+                for (var y = 0; y < bitmap.Height; y++)
+                    image[x, y] = bitmap.GetPixel(x, y);
 
-	class Original : Filter
-	{
-		public override Color Transform(Color c)
-		{
-			return c;
-		}
-	}
+            //Perform processing on the color grid.
+            var newImage = Process(image);
 
-	class Colorblind : Filter
-	{
-		public override Color Transform(Color c)
-		{
-			return Color.FromArgb(c.R, 0, c.B);
-		}
-	}
+            //Construct a Bitmap from the color grid.
+            var newBitmap = new Bitmap(image.GetLength(0), image.GetLength(1));
+            for (var x = 0; x < newBitmap.Width; x++)
+                for (var y = 0; y < newBitmap.Height; y++)
+                    newBitmap.SetPixel(x, y, newImage[x, y]);
 
-	public static class Plexi
-	{
-		public static void Main(string[] args)
-		{
-			var filters = new Filter[]
-			{
-				new Original(),
-				new Negative(),
-				new Colorblind()
-			};
-			Filter filter = null;
-			if (args.Length >= 1)
-				filter = filters.First(name => string.Compare(args[0], name.ToString(), true) == 0);
-			if (filter == null)
-				filter = filters.Last();
-			var input = new Bitmap(Console.OpenStandardInput());
-			var output = filter.Process(input);
-			output.Save(Console.OpenStandardOutput(), System.Drawing.Imaging.ImageFormat.Png);
-		}
-	}
+            //Return the processed Bitmap.
+            return newBitmap;
+        }
+
+        public virtual Color[,] Process(Color[,] image)
+        {
+            //Construct a new color grid and transform each color individually.
+            var newImage = new Color[image.GetLength(0), image.GetLength(1)];
+            for (var x = 0; x < image.GetLength(0); x++)
+                for (var y = 0; y < image.GetLength(1); y++)
+                    newImage[x, y] = Transform(image[x, y]);
+
+            return newImage;
+        }
+
+        public virtual Color Transform(Color c)
+        {
+            return c;
+        }
+
+        public override string ToString()
+        {
+            return this.GetType().Name;
+        }
+    }
+
+    public class Negative : Processor
+    {
+        public override Color Transform(Color c)
+        {
+            return Color.FromArgb(255 - c.R, 255 - c.G, 255 - c.B); // Negative color
+        }
+    }
+
+    public class Identity : Processor
+    {
+        public override Color Transform(Color c)
+        {
+            return c;
+        }
+    }
+
+    public class Greenblind : Processor
+    {
+        public override Color Transform(Color c)
+        {
+            return Color.FromArgb(c.R, c.G / 10, c.B);
+        }
+    }
 }
