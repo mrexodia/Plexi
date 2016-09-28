@@ -29,7 +29,7 @@ namespace Plexi
 
     public abstract class Processor
     {
-        public virtual Bitmap Process(Bitmap bitmap)
+        public Bitmap Process(Bitmap bitmap)
         {
             //Construct a color grid from the bitmap.
             var image = new Color[bitmap.Width, bitmap.Height];
@@ -69,6 +69,23 @@ namespace Plexi
         public override string ToString()
         {
             return this.GetType().Name;
+        }
+    }
+
+    public class MultiProcessor : Processor
+    {
+        private Processor[] _processors;
+
+        public MultiProcessor(Processor[] processors)
+        {
+            _processors = processors;
+        }
+
+        public override Color[,] Process(Color[,] image)
+        {
+            foreach (var processor in _processors)
+                image = processor.Process(image);
+            return image;
         }
     }
 }
