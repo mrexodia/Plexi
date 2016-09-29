@@ -9,7 +9,7 @@ Simple image processing framework. Tested on Windows (Visual Studio) and OSX (Xa
 
 The framework ([Plexi.cs](https://github.com/mrexodia/Plexi/blob/master/Plexi/Plexi.cs)) allows you to easily define image [processors](https://github.com/mrexodia/Plexi/blob/master/Plexi/Plexi.cs#L30) that can be applied to a [System.Drawing.Bitmap](https://msdn.microsoft.com/en-us/library/system.drawing.bitmap(v=vs.110).aspx) class. There are currently two methods in the `Processor` class that you can override: `Transform` and `Process`.
 
-## Example processors
+## Documentation
 
 The `Transform` method will be called for every color in your input image, the `Negative` processor will return the negative for every color in your image and after running this processor you will have the negative image. This is useful for simple processors that don't require contextual information to function.
 
@@ -23,7 +23,7 @@ public class Negative : Processor
 }
 ```
 
-The `Process` method will be called with the image as a two-dimensional array (width * height) of colors. This processor will rotate the input image 90 degrees to the right. You have to return a new `Color[,]` (to support resizing operations).
+The `Process` method will be called with the image as a two-dimensional array (width * height) of colors. This processor will rotate the input image 90 degrees to the right. You have to return a new `Color[,]` object (to support resizing operations).
 
 ```c#
 public class RotateRight : Processor
@@ -38,6 +38,20 @@ public class RotateRight : Processor
         return newImage;
     }
 }
+```
+
+To combine multiple `Processor` instances there is a class called [MultiProcessor](https://github.com/mrexodia/Plexi/blob/master/Plexi/Plexi.cs#L75). It takes an array of `Processor` instances and simply executes them in order.
+
+```c#
+Processor processor = new MultiProcessor(new Processor[]
+{
+    new Negative(),
+    new RotateRight()
+});
+
+var InputImage = Plexi.ReadBitmapFromFile("images/lena_color.jpg");
+var OutputImage = processor.Process(InputImage);
+Plexi.WriteBitmapToFile(OutputImage, "output.png");
 ```
 
 ## INFOIBV (GUI)
