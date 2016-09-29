@@ -23,7 +23,7 @@ public class Negative : Processor
 }
 ```
 
-The `RotateRight` method will be called with the image as a two-dimensional array (width * height) of colors. This processor will rotate the input image 90 degrees to the right.
+The `Process` method will be called with the image as a two-dimensional array (width * height) of colors. This processor will rotate the input image 90 degrees to the right. You have to return a new `Color[,]` (to support resizing operations).
 
 ```c#
 public class RotateRight : Processor
@@ -46,13 +46,15 @@ Add your processors to the pipeline by adding your own processors in  [Form1.cs 
 
 ## Plexi (command line)
 
-The Plexi project ([Program.cs](https://github.com/mrexodia/Plexi/blob/master/Plexi/Program.cs)) is a simple command-line interface that works with pipes (for Linux/OSX users). The following command will execite a pipeline of the `Negative` and `Rotate` processors (defined in [Program.cs line 57](https://github.com/mrexodia/Plexi/blob/master/Plexi/Program.cs#L57)) on `images/lena_color.jpg`:
+The Plexi project ([Program.cs](https://github.com/mrexodia/Plexi/blob/master/Plexi/Program.cs)) is a simple command-line interface that works with pipes (for Linux/OS X users). It also works on images of arbitrary sizes.
+
+The following command will execute a pipeline of the `Negative` and `Rotate` processors (defined in [Program.cs line 57](https://github.com/mrexodia/Plexi/blob/master/Plexi/Program.cs#L57)) on `images/lena_color.jpg`.
 
 ```bash
 mono bin/Debug/Plexi.exe Negative,Rotate < images/lena_color.jpg > output.png
 ```
 
-The [test](https://github.com/mrexodia/Plexi/blob/master/Plexi/test) script for OSX allows you to quickly execute a pipeline on an image and view the results (this does the same as the command above):
+The [test](https://github.com/mrexodia/Plexi/blob/master/Plexi/test) script for OS X allows you to quickly execute a pipeline on an image and view the results (this does the same as the command above):
 
 ```bash
 ./test images/lena_color.jpg Negative,Rotate
